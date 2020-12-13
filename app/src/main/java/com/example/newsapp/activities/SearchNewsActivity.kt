@@ -1,13 +1,13 @@
 package com.example.newsapp.activities
 
-import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.AbsListView
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -18,62 +18,28 @@ import com.example.newsapp.FILTER_SOURCE
 import com.example.newsapp.PAGE_SIZE
 import com.example.newsapp.R
 import com.example.newsapp.adapters.NewsAdapter
-import com.example.newsapp.databinding.ActivityNewsBinding
-import com.example.newsapp.factory.RetrofitClientViewModelFactory
+import com.example.newsapp.databinding.ActivitySearchNewsBinding
 import com.example.newsapp.factory.RetrofitClient
-import com.example.newsapp.fragments.CountryBottomSheetFragment
-import com.example.newsapp.fragments.FilterSourcesBottomSheetFragment
+import com.example.newsapp.factory.RetrofitClientViewModelFactory
 import com.example.newsapp.models.NewsResponse
-import com.example.newsapp.viewmodels.NewsActivityViewModel
+import com.example.newsapp.viewmodels.SearchNewsActivityViewModel
 
-class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
-    FilterSourcesBottomSheetFragment.ItemClickListener,
-    CountryBottomSheetFragment.CountrySelectListener,
-    NewsAdapter.OnNewsItemClickListener {
-    private lateinit var binding: ActivityNewsBinding
+class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListener {
+    private lateinit var binding: ActivitySearchNewsBinding
     private lateinit var layoutManager: LinearLayoutManager
     private val adapter: NewsAdapter = NewsAdapter(this)
-    private lateinit var viewModel: NewsActivityViewModel
+    private lateinit var viewModel: SearchNewsActivityViewModel
     private var isScrolling: Boolean = false
     private var isLoading: Boolean = false
     private var isLastPage: Boolean = false
+    private var token: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_news)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_search_news)
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
-        binding.spinnerSort.onItemSelectedListener = this
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.planets_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerSort.adapter = adapter
-        }
-
-        binding.searchNews.setOnClickListener {
-            startActivity(Intent(this@NewsActivity, SearchNewsActivity::class.java))
-        }
-
-        binding.fabFilter.setOnClickListener {
-            supportFragmentManager.let {
-                FilterSourcesBottomSheetFragment.newInstance(Bundle()).apply {
-                    show(it, tag)
-                }
-            }
-        }
-
-        binding.locationLayout.setOnClickListener {
-            supportFragmentManager.let {
-                CountryBottomSheetFragment.newInstance(Bundle()).apply {
-                    show(it, tag)
-                }
-            }
-        }
-
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -103,13 +69,13 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         })
         val client = RetrofitClient.retrofitClient
         val factory = RetrofitClientViewModelFactory(client!!)
-        viewModel = ViewModelProvider(this, factory).get(NewsActivityViewModel::class.java)
-        viewModel.getNews(FILTER_COUNTRY, FILTER_SOURCE, PAGE_SIZE)
+        viewModel = ViewModelProvider(this, factory).get(SearchNewsActivityViewModel::class.java)
         viewModel.newsList.observe(this, {
             if (it != null) {
                 adapter.fillData(it)
             }
         })
+
         viewModel.isLoading.observe(this, {
             if (it != null) {
                 isLoading = it
@@ -120,18 +86,35 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 }
             }
         })
+
         viewModel.isLastPage.observe(this, {
             if (it != null) {
                 isLastPage = it
             }
         })
+
+        binding.searchNews.setOnEditorActionListener { textView, id, keyEvent ->
+            if (id == EditorInfo.IME_ACTION_DONE) {
+                val keyword = textView.text.toString()
+                refreshNews()
+                if(keyword.isNotEmpty()){
+                    token = keyword
+                    fetchData()
+                }
+                binding.searchNews.isFocusable = false
+                binding.searchNews.isFocusableInTouchMode = true
+                hideKeyboard()
+                return@setOnEditorActionListener true
+            }
+            false
+        }
     }
 
     private fun fetchData() {
         if (FILTER_SOURCE != null) {
-            viewModel.getNews(null, FILTER_SOURCE, PAGE_SIZE)
+            viewModel.getNews(token, null, FILTER_SOURCE, PAGE_SIZE)
         } else {
-            viewModel.getNews(FILTER_COUNTRY, FILTER_SOURCE, PAGE_SIZE)
+            viewModel.getNews(token, FILTER_COUNTRY, FILTER_SOURCE, PAGE_SIZE)
         }
     }
 
@@ -141,49 +124,6 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         viewModel.isLoading.value = false
         viewModel.isLastPage.value = false
         viewModel.from.value = 1
-        fetchData()
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-        if (parent != null) {
-            Log.e("spinner", parent.getItemAtPosition(pos).toString() + ", " + pos)
-            when (pos) {
-                0 -> adapter.sortByNewest()
-                1 -> adapter.sortByNewest()
-                2 -> adapter.sortByOldest()
-            }
-        }
-    }
-
-    override fun onNothingSelected(p0: AdapterView<*>?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onApplyFilter(item: ArrayList<String>) {
-        if (item.isEmpty()) {
-            FILTER_SOURCE = null
-        } else {
-            val builder = StringBuilder()
-            item.forEach {
-                builder.append(it).append(",")
-            }
-            FILTER_SOURCE = builder.toString()
-        }
-        refreshNews()
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun onCountrySelected(item: String?) {
-        FILTER_SOURCE = null
-        FILTER_COUNTRY = item
-        when (item) {
-            "in" -> binding.txtLocation.text = "India"
-            "us" -> binding.txtLocation.text = "United States"
-            "au" -> binding.txtLocation.text = "Australia"
-            "fr" -> binding.txtLocation.text = "France"
-            "id" -> binding.txtLocation.text = "Indonesia"
-        }
-        refreshNews()
     }
 
     override fun onClick(article: NewsResponse.Article) {
@@ -193,5 +133,11 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 article
             )
         )
+    }
+
+    fun hideKeyboard(){
+        val imm: InputMethodManager =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.searchNews.windowToken, 0)
     }
 }

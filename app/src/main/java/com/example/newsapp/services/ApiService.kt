@@ -10,6 +10,7 @@ import retrofit2.http.Query
 interface ApiService {
     @GET("top-headlines/")
     fun getNews(
+        @Query("q") searchToken: String?,
         @Query("country") country: String?,
         @Query("sources") sources: String?,
         @Query("pageSize") pageSize: Int,

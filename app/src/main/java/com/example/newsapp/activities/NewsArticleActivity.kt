@@ -6,18 +6,18 @@ import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.example.newsapp.R
 import com.example.newsapp.convertDate
-import com.example.newsapp.databinding.ActivityNewsDetailedBinding
+import com.example.newsapp.databinding.ActivityNewsArticleBinding
 import com.example.newsapp.models.NewsResponse
 
-class NewsDetailedActivity: AppCompatActivity() {
-    private lateinit var binding: ActivityNewsDetailedBinding
+class NewsArticleActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityNewsArticleBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_news_detailed)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_news_article)
         val extras = intent.extras
         val news: NewsResponse.Article? = extras?.getParcelable("news_article")
         inflateViewsWithData(news)
-        binding.articleBack.setOnClickListener{
+        binding.articleBack.setOnClickListener {
             onBackPressed()
         }
     }

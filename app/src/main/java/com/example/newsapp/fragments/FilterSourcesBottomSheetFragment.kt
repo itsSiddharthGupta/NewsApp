@@ -12,7 +12,7 @@ import com.example.newsapp.FILTER_COUNTRY
 import com.example.newsapp.R
 import com.example.newsapp.adapters.SourceAdapter
 import com.example.newsapp.databinding.LayoutFilterBottomSheetBinding
-import com.example.newsapp.factory.NewsActivityViewModelFactory
+import com.example.newsapp.factory.RetrofitClientViewModelFactory
 import com.example.newsapp.factory.RetrofitClient
 import com.example.newsapp.viewmodels.NewsActivityViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -36,7 +36,7 @@ class FilterSourcesBottomSheetFragment : BottomSheetDialogFragment(), SourceAdap
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val client = RetrofitClient.retrofitClient
-        val factory = NewsActivityViewModelFactory(client!!)
+        val factory = RetrofitClientViewModelFactory(client!!)
         viewModel = ViewModelProvider(this, factory).get(NewsActivityViewModel::class.java)
         viewModel.getSources(FILTER_COUNTRY)
         binding.recyclerViewFilter.layoutManager =
