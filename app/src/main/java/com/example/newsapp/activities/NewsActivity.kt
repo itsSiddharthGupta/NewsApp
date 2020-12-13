@@ -1,6 +1,7 @@
 package com.example.newsapp.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,21 +13,26 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsapp.*
+import com.example.newsapp.FILTER_COUNTRY
+import com.example.newsapp.FILTER_SOURCE
+import com.example.newsapp.PAGE_SIZE
+import com.example.newsapp.R
 import com.example.newsapp.adapters.NewsAdapter
 import com.example.newsapp.databinding.ActivityNewsBinding
 import com.example.newsapp.factory.NewsActivityViewModelFactory
 import com.example.newsapp.factory.RetrofitClient
 import com.example.newsapp.fragments.CountryBottomSheetFragment
 import com.example.newsapp.fragments.FilterSourcesBottomSheetFragment
+import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.viewmodels.NewsActivityViewModel
 
 class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     FilterSourcesBottomSheetFragment.ItemClickListener,
-    CountryBottomSheetFragment.CountrySelectListener {
+    CountryBottomSheetFragment.CountrySelectListener,
+    NewsAdapter.OnNewsItemClickListener {
     private lateinit var binding: ActivityNewsBinding
     private lateinit var layoutManager: LinearLayoutManager
-    private val adapter: NewsAdapter = NewsAdapter()
+    private val adapter: NewsAdapter = NewsAdapter(this)
     private lateinit var viewModel: NewsActivityViewModel
     private var isScrolling: Boolean = false
     private var isLoading: Boolean = false
@@ -117,14 +123,14 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     }
 
     private fun fetchData() {
-        if(FILTER_SOURCE !=null){
+        if (FILTER_SOURCE != null) {
             viewModel.getNews(null, FILTER_SOURCE, PAGE_SIZE)
         } else {
             viewModel.getNews(FILTER_COUNTRY, FILTER_SOURCE, PAGE_SIZE)
         }
     }
 
-    private fun refreshNews(){
+    private fun refreshNews() {
         adapter.clearData();
         isScrolling = false
         viewModel.isLoading.value = false
@@ -136,7 +142,7 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
         if (parent != null) {
             Log.e("spinner", parent.getItemAtPosition(pos).toString() + ", " + pos)
-            when(pos){
+            when (pos) {
                 0 -> adapter.sortByNewest()
                 1 -> adapter.sortByNewest()
                 2 -> adapter.sortByOldest()
@@ -149,7 +155,7 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     }
 
     override fun onApplyFilter(item: ArrayList<String>) {
-        if(item.isEmpty()){
+        if (item.isEmpty()) {
             FILTER_SOURCE = null
         } else {
             val builder = StringBuilder()
@@ -165,7 +171,7 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     override fun onCountrySelected(item: String?) {
         FILTER_SOURCE = null
         FILTER_COUNTRY = item
-        when(item){
+        when (item) {
             "in" -> binding.txtLocation.text = "India"
             "us" -> binding.txtLocation.text = "United States"
             "au" -> binding.txtLocation.text = "Australia"
@@ -173,5 +179,14 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
             "id" -> binding.txtLocation.text = "Indonesia"
         }
         refreshNews()
+    }
+
+    override fun onClick(article: NewsResponse.Article) {
+        startActivity(
+            Intent(this, NewsDetailedActivity::class.java).putExtra(
+                "news_article",
+                article
+            )
+        )
     }
 }

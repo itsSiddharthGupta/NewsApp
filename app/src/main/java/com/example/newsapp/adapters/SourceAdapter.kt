@@ -41,15 +41,17 @@ class SourceAdapter(var listener: OnSourceSelectListener) :
         private val checkBox = itemView.findViewById<CheckBox>(R.id.sourceCheckBox)
 
         fun bindView(source: NewsSourceResponse.NewsSource) {
-            checkBox.text = source.name
-            if(FILTER_SOURCE !=null && FILTER_SOURCE!!.contains(source.id)){
-                checkBox.isChecked = true
-            }
-            checkBox.setOnCheckedChangeListener { button, b ->
-                if (b) {
-                    listener.onSourceSelected(source.id)
-                } else {
-                    listener.onSourceDeselected(source.id)
+            if(source.id!=null) {
+                checkBox.text = source.name
+                if (FILTER_SOURCE != null && FILTER_SOURCE!!.contains(source.id)) {
+                    checkBox.isChecked = true
+                }
+                checkBox.setOnCheckedChangeListener { button, b ->
+                    if (b) {
+                        listener.onSourceSelected(source.id)
+                    } else {
+                        listener.onSourceDeselected(source.id)
+                    }
                 }
             }
         }

@@ -11,7 +11,7 @@ import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.R
 import com.example.newsapp.convertDate
 
-class NewsAdapter : RecyclerView.Adapter<NewsAdapter.MyViewHolder>() {
+class NewsAdapter(var listener: OnNewsItemClickListener) : RecyclerView.Adapter<NewsAdapter.MyViewHolder>() {
 
     private var newsList = ArrayList<NewsResponse.Article>()
     private var sortInd = 1
@@ -49,7 +49,7 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.MyViewHolder>() {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         view.layoutParams = params
-        return MyViewHolder(view)
+        return MyViewHolder(view, listener)
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
@@ -58,7 +58,7 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.MyViewHolder>() {
 
     override fun getItemCount() = newsList.size
 
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class MyViewHolder(itemView: View, var listener: OnNewsItemClickListener) : RecyclerView.ViewHolder(itemView) {
         private val textNewsSource = itemView.findViewById<TextView>(R.id.txtNewsSource)
         private val textNewsDesc = itemView.findViewById<TextView>(R.id.txtNewsDesc)
         private val textNewsTime = itemView.findViewById<TextView>(R.id.txtNewsTime)
@@ -69,6 +69,13 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.MyViewHolder>() {
             textNewsDesc.text = article.description
             textNewsTime.text = convertDate(article.publishedAt)
             Glide.with(itemView.context).load(article.urlToImage).into(imgNews)
+            itemView.setOnClickListener {
+                listener.onClick(article)
+            }
         }
+    }
+
+    interface OnNewsItemClickListener{
+        fun onClick(article: NewsResponse.Article)
     }
 }

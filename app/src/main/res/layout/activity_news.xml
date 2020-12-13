@@ -111,6 +111,7 @@
                 android:text="Top Headlines"
                 android:fontFamily="@font/hvnbold"
                 android:textSize="16sp"
+                android:textColor="@color/primaryDark"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
