@@ -108,6 +108,13 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         viewModel.newsList.observe(this, {
             if (it != null) {
                 adapter.fillData(it)
+                if(adapter.itemCount == 0){
+                    binding.layoutEmptyList.visibility = View.VISIBLE
+                    binding.layoutNews.visibility = View.GONE
+                } else {
+                    binding.layoutEmptyList.visibility = View.GONE
+                    binding.layoutNews.visibility = View.VISIBLE
+                }
             }
         })
         viewModel.isLoading.observe(this, {
