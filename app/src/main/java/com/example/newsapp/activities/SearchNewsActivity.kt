@@ -13,15 +13,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsapp.utils.FILTER_COUNTRY
-import com.example.newsapp.utils.FILTER_SOURCE
-import com.example.newsapp.utils.PAGE_SIZE
 import com.example.newsapp.R
 import com.example.newsapp.adapters.NewsAdapter
 import com.example.newsapp.databinding.ActivitySearchNewsBinding
 import com.example.newsapp.factory.RetrofitClient
 import com.example.newsapp.factory.RetrofitClientViewModelFactory
 import com.example.newsapp.models.NewsResponse
+import com.example.newsapp.utils.FILTER_COUNTRY
+import com.example.newsapp.utils.FILTER_SOURCE
+import com.example.newsapp.utils.PAGE_SIZE
 import com.example.newsapp.viewmodels.SearchNewsActivityViewModel
 
 class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListener {
@@ -73,7 +73,7 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
         viewModel.newsList.observe(this, {
             if (it != null) {
                 adapter.fillData(it)
-                if(adapter.itemCount == 0){
+                if (adapter.itemCount == 0) {
                     binding.layoutEmptyList.visibility = View.VISIBLE
                     binding.layoutNews.visibility = View.GONE
                 } else {
@@ -116,6 +116,7 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
             false
         }
         binding.searchBack.setOnClickListener { onBackPressed() }
+        requestFocus()
     }
 
     private fun fetchData() {
@@ -141,6 +142,12 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
                 article
             )
         )
+    }
+
+    private fun requestFocus(){
+        binding.searchNews.requestFocus()
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(binding.searchNews, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun hideKeyboard(){
