@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">NewsApp</string>
     <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipisicing elit. A adipisci aspernatur assumenda atque aut  </string>
-    <string-array name="planets_array">
+    <string-array name="sort_array">
         <item>Popular</item>
         <item>Newest</item>
         <item>Oldest</item>

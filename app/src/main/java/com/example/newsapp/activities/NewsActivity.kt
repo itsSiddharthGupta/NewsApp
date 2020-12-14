@@ -47,10 +47,10 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         binding.spinnerSort.onItemSelectedListener = this
         ArrayAdapter.createFromResource(
             this,
-            R.array.planets_array,
-            android.R.layout.simple_spinner_item
+            R.array.sort_array,
+            R.layout.sort_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.sort_spinner_item)
             binding.spinnerSort.adapter = adapter
         }
 

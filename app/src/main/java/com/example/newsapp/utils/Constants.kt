@@ -8,6 +8,7 @@ import java.util.*
 const val NEWS_API_BASE_URL = "https://newsapi.org/v2/"
 const val NEWS_API_KEY = "d0f03357767249dba9395c94bfa3e1a9"
 const val PAGE_SIZE: Int = 10
+const val NOT_AVAILABLE = "Not available"
 var FILTER_COUNTRY: String? = "in"
 var FILTER_SOURCE: String? = null
 
