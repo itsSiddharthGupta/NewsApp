@@ -8,23 +8,26 @@ import android.view.View
 import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsapp.utils.FILTER_COUNTRY
-import com.example.newsapp.utils.FILTER_SOURCE
-import com.example.newsapp.utils.PAGE_SIZE
 import com.example.newsapp.R
 import com.example.newsapp.adapters.NewsAdapter
 import com.example.newsapp.databinding.ActivityNewsBinding
-import com.example.newsapp.factory.RetrofitClientViewModelFactory
 import com.example.newsapp.factory.RetrofitClient
+import com.example.newsapp.factory.RetrofitClientViewModelFactory
 import com.example.newsapp.fragments.CountryBottomSheetFragment
 import com.example.newsapp.fragments.FilterSourcesBottomSheetFragment
 import com.example.newsapp.models.NewsResponse
+import com.example.newsapp.utils.FILTER_COUNTRY
+import com.example.newsapp.utils.FILTER_SOURCE
+import com.example.newsapp.utils.PAGE_SIZE
+import com.example.newsapp.utils.checkConnection
 import com.example.newsapp.viewmodels.NewsActivityViewModel
+import kotlinx.android.synthetic.main.layout_no_internet.view.*
 
 class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     FilterSourcesBottomSheetFragment.ItemClickListener,
@@ -53,7 +56,32 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
             adapter.setDropDownViewResource(R.layout.sort_spinner_item)
             binding.spinnerSort.adapter = adapter
         }
+        val client = RetrofitClient.retrofitClient
+        val factory = RetrofitClientViewModelFactory(client!!)
+        viewModel = ViewModelProvider(this, factory).get(NewsActivityViewModel::class.java)
 
+        setListeners()
+        setObservers()
+
+        initialiseFlow()
+    }
+
+    private fun initialiseFlow() {
+        if (checkConnection(this)) {
+            binding.layoutNoInternet.visibility = View.GONE
+            binding.layoutNews.visibility = View.VISIBLE
+            binding.fabFilter.visibility = View.VISIBLE
+            binding.locationLayout.isEnabled = true
+            viewModel.getNews(FILTER_COUNTRY, FILTER_SOURCE, PAGE_SIZE)
+        } else {
+            binding.layoutNoInternet.visibility = View.VISIBLE
+            binding.layoutNews.visibility = View.GONE
+            binding.fabFilter.visibility = View.GONE
+            binding.locationLayout.isEnabled = false
+        }
+    }
+
+    private fun setListeners() {
         binding.searchNews.setOnClickListener {
             startActivity(Intent(this@NewsActivity, SearchNewsActivity::class.java))
         }
@@ -101,14 +129,17 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 }
             }
         })
-        val client = RetrofitClient.retrofitClient
-        val factory = RetrofitClientViewModelFactory(client!!)
-        viewModel = ViewModelProvider(this, factory).get(NewsActivityViewModel::class.java)
-        viewModel.getNews(FILTER_COUNTRY, FILTER_SOURCE, PAGE_SIZE)
+
+        binding.layoutNoInternet.btnRetry.setOnClickListener {
+            initialiseFlow()
+        }
+    }
+
+    private fun setObservers() {
         viewModel.newsList.observe(this, {
             if (it != null) {
                 adapter.fillData(it)
-                if(adapter.itemCount == 0){
+                if (adapter.itemCount == 0) {
                     binding.layoutEmptyList.visibility = View.VISIBLE
                     binding.layoutNews.visibility = View.GONE
                 } else {
@@ -130,6 +161,14 @@ class NewsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         viewModel.isLastPage.observe(this, {
             if (it != null) {
                 isLastPage = it
+            }
+        })
+        viewModel.isNewsError.observe(this, {
+            if (it != null) {
+                if (it) {
+                    Toast.makeText(this@NewsActivity, "Error loading news!", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         })
     }

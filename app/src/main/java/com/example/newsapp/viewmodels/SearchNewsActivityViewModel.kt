@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.newsapp.utils.NEWS_API_KEY
 import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.services.ApiService
+import com.example.newsapp.utils.STATUS_OK
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,6 +17,7 @@ class SearchNewsActivityViewModel(private var client: Retrofit) : ViewModel() {
     var isLoading: MutableLiveData<Boolean> = MutableLiveData(false)
     var isLastPage: MutableLiveData<Boolean> = MutableLiveData(false)
     var from: MutableLiveData<Int> = MutableLiveData(1)
+    var isNewsError: MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun getNews(token: String, country: String?, source: String?, pageSize: Int) {
         isLoading.value = true
@@ -27,20 +29,26 @@ class SearchNewsActivityViewModel(private var client: Retrofit) : ViewModel() {
                     response: Response<NewsResponse>
                 ) {
                     if (response.isSuccessful && response.body() != null) {
-                        //todo take status into consideration
-                        newsList.value = response.body()!!.articles
-                        if (newsList.value!!.isEmpty()) {
-                            isLastPage.value = true
+                        if(response.body()!!.status == STATUS_OK) {
+                            isNewsError.value = false
+                            newsList.value = response.body()!!.articles
+                            if (newsList.value!!.isEmpty()) {
+                                isLastPage.value = true
+                            } else {
+                                from.value = from.value?.plus(1)
+                            }
                         } else {
-                            from.value = from.value?.plus(1)
+                            isNewsError.value = true
                         }
                     }
+                    isNewsError.value = true
                     isLoading.value = false
                 }
 
                 override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
                     Log.e("Failed", t.toString())
                     isLoading.value = false
+                    isNewsError.value = true
                 }
             }
             )

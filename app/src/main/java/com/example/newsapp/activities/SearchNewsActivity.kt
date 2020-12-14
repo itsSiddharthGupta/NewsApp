@@ -8,6 +8,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.AbsListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -22,7 +23,9 @@ import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.utils.FILTER_COUNTRY
 import com.example.newsapp.utils.FILTER_SOURCE
 import com.example.newsapp.utils.PAGE_SIZE
+import com.example.newsapp.utils.checkConnection
 import com.example.newsapp.viewmodels.SearchNewsActivityViewModel
+import kotlinx.android.synthetic.main.layout_no_internet.view.*
 
 class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListener {
     private lateinit var binding: ActivitySearchNewsBinding
@@ -70,6 +73,48 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
         val client = RetrofitClient.retrofitClient
         val factory = RetrofitClientViewModelFactory(client!!)
         viewModel = ViewModelProvider(this, factory).get(SearchNewsActivityViewModel::class.java)
+
+        setObservers()
+        setListeners()
+
+        initialiseFlow()
+
+        requestFocus()
+    }
+
+    private fun initialiseFlow() {
+        if (checkConnection(this)) {
+            binding.layoutNoInternet.visibility = View.GONE
+            binding.layoutNews.visibility = View.VISIBLE
+            binding.searchNews.visibility = View.VISIBLE
+        } else {
+            binding.layoutNoInternet.visibility = View.VISIBLE
+            binding.layoutNews.visibility = View.GONE
+            binding.searchNews.visibility = View.GONE
+        }
+    }
+
+    private fun setListeners() {
+        binding.searchNews.setOnEditorActionListener { textView, id, keyEvent ->
+            if (id == EditorInfo.IME_ACTION_DONE) {
+                val keyword = textView.text.toString()
+                refreshNews()
+                if (keyword.isNotEmpty()) {
+                    token = keyword
+                    fetchData()
+                }
+                binding.searchNews.isFocusable = false
+                binding.searchNews.isFocusableInTouchMode = true
+                hideKeyboard()
+                return@setOnEditorActionListener true
+            }
+            false
+        }
+        binding.searchBack.setOnClickListener { onBackPressed() }
+        binding.layoutNoInternet.btnRetry.setOnClickListener { initialiseFlow() }
+    }
+
+    private fun setObservers() {
         viewModel.newsList.observe(this, {
             if (it != null) {
                 adapter.fillData(it)
@@ -100,23 +145,18 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
             }
         })
 
-        binding.searchNews.setOnEditorActionListener { textView, id, keyEvent ->
-            if (id == EditorInfo.IME_ACTION_DONE) {
-                val keyword = textView.text.toString()
-                refreshNews()
-                if(keyword.isNotEmpty()){
-                    token = keyword
-                    fetchData()
+        viewModel.isNewsError.observe(this, {
+            if (it != null) {
+                if (it) {
+                    Toast.makeText(
+                        this@SearchNewsActivity,
+                        "Error loading news!",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
                 }
-                binding.searchNews.isFocusable = false
-                binding.searchNews.isFocusableInTouchMode = true
-                hideKeyboard()
-                return@setOnEditorActionListener true
             }
-            false
-        }
-        binding.searchBack.setOnClickListener { onBackPressed() }
-        requestFocus()
+        })
     }
 
     private fun fetchData() {
@@ -144,13 +184,13 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
         )
     }
 
-    private fun requestFocus(){
+    private fun requestFocus() {
         binding.searchNews.requestFocus()
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(binding.searchNews, InputMethodManager.SHOW_IMPLICIT)
     }
 
-    private fun hideKeyboard(){
+    private fun hideKeyboard() {
         val imm: InputMethodManager =
             getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.searchNews.windowToken, 0)

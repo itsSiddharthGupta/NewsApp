@@ -5,19 +5,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.newsapp.utils.FILTER_COUNTRY
 import com.example.newsapp.R
 import com.example.newsapp.adapters.SourceAdapter
 import com.example.newsapp.databinding.LayoutFilterBottomSheetBinding
-import com.example.newsapp.factory.RetrofitClientViewModelFactory
 import com.example.newsapp.factory.RetrofitClient
+import com.example.newsapp.factory.RetrofitClientViewModelFactory
+import com.example.newsapp.utils.FILTER_COUNTRY
 import com.example.newsapp.viewmodels.NewsActivityViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class FilterSourcesBottomSheetFragment : BottomSheetDialogFragment(), SourceAdapter.OnSourceSelectListener {
+class FilterSourcesBottomSheetFragment : BottomSheetDialogFragment(),
+    SourceAdapter.OnSourceSelectListener {
     private lateinit var viewModel: NewsActivityViewModel
     private lateinit var binding: LayoutFilterBottomSheetBinding
     private var adapter = SourceAdapter(this)
@@ -47,7 +49,29 @@ class FilterSourcesBottomSheetFragment : BottomSheetDialogFragment(), SourceAdap
                 adapter.fillData(it)
             }
         })
-        binding.btnApplyFilter.setOnClickListener{
+        viewModel.isSourcesLoading.observe(viewLifecycleOwner, {
+            if (it != null) {
+                if (it) {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.layoutNewsSources.visibility = View.GONE
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                    binding.layoutNewsSources.visibility = View.VISIBLE
+                }
+            }
+        })
+        viewModel.isNewsSourceError.observe(viewLifecycleOwner, {
+            if (it != null) {
+                if (it) {
+                    Toast.makeText(context, "Error loading sources!", Toast.LENGTH_SHORT)
+                        .show()
+                    binding.layoutNewsSources.visibility = View.GONE
+                } else {
+                    binding.layoutNewsSources.visibility = View.VISIBLE
+                }
+            }
+        })
+        binding.btnApplyFilter.setOnClickListener {
             mListener?.onApplyFilter(srcList)
             dismissAllowingStateLoss()
         }
