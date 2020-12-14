@@ -1,4 +1,4 @@
-package com.example.newsapp
+package com.example.newsapp.utils
 
 import android.text.format.DateUtils
 import java.text.ParseException
@@ -11,21 +11,23 @@ const val PAGE_SIZE: Int = 10
 var FILTER_COUNTRY: String? = "in"
 var FILTER_SOURCE: String? = null
 
-fun convertDate(stringDate: String): String? {
+fun convertDate(stringDate: String?): String? {
     val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
     var formattedDate: String? = null
-    try {
-        val date = format.parse(stringDate)
-        if (date != null) {
-            formattedDate = DateUtils.getRelativeTimeSpanString(
-                date.time,
-                Calendar.getInstance().timeInMillis,
-                DateUtils.MINUTE_IN_MILLIS
-            )
-                .toString()
+    if (stringDate != null) {
+        try {
+            val date = format.parse(stringDate)
+            if (date != null) {
+                formattedDate = DateUtils.getRelativeTimeSpanString(
+                    date.time,
+                    Calendar.getInstance().timeInMillis,
+                    DateUtils.MINUTE_IN_MILLIS
+                )
+                    .toString()
+            }
+        } catch (e: ParseException) {
+            e.printStackTrace()
         }
-    } catch (e: ParseException) {
-        e.printStackTrace()
     }
     return formattedDate
 }

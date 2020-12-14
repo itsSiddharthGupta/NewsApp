@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.newsapp.services.ApiService
-import com.example.newsapp.NEWS_API_KEY
+import com.example.newsapp.utils.NEWS_API_KEY
 import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.models.NewsSourceResponse
 import retrofit2.Call

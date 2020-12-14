@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.R
-import com.example.newsapp.convertDate
+import com.example.newsapp.utils.convertDate
 
 class NewsAdapter(var listener: OnNewsItemClickListener) : RecyclerView.Adapter<NewsAdapter.MyViewHolder>() {
 
@@ -66,7 +66,7 @@ class NewsAdapter(var listener: OnNewsItemClickListener) : RecyclerView.Adapter<
 
         fun bindView(article: NewsResponse.Article) {
             textNewsSource.text = article.source.name
-            textNewsDesc.text = article.description
+            textNewsDesc.text = article.title
             textNewsTime.text = convertDate(article.publishedAt)
             Glide.with(itemView.context).load(article.urlToImage).into(imgNews)
             itemView.setOnClickListener {

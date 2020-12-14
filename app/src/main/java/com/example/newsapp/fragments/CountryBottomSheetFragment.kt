@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioGroup
 import androidx.databinding.DataBindingUtil
-import com.example.newsapp.FILTER_COUNTRY
+import com.example.newsapp.utils.FILTER_COUNTRY
 import com.example.newsapp.R
 import com.example.newsapp.databinding.LayoutCountryBottomSheetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

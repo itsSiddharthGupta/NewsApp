@@ -1,6 +1,6 @@
 package com.example.newsapp.factory
 
-import com.example.newsapp.NEWS_API_BASE_URL
+import com.example.newsapp.utils.NEWS_API_BASE_URL
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

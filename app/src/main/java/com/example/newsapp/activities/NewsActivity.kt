@@ -13,9 +13,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsapp.FILTER_COUNTRY
-import com.example.newsapp.FILTER_SOURCE
-import com.example.newsapp.PAGE_SIZE
+import com.example.newsapp.utils.FILTER_COUNTRY
+import com.example.newsapp.utils.FILTER_SOURCE
+import com.example.newsapp.utils.PAGE_SIZE
 import com.example.newsapp.R
 import com.example.newsapp.adapters.NewsAdapter
 import com.example.newsapp.databinding.ActivityNewsBinding

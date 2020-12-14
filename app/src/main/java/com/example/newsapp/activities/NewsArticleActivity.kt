@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.example.newsapp.R
-import com.example.newsapp.convertDate
+import com.example.newsapp.utils.convertDate
 import com.example.newsapp.databinding.ActivityNewsArticleBinding
 import com.example.newsapp.models.NewsResponse
 

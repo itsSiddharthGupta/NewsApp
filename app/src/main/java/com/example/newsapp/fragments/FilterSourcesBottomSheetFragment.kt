@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.newsapp.FILTER_COUNTRY
+import com.example.newsapp.utils.FILTER_COUNTRY
 import com.example.newsapp.R
 import com.example.newsapp.adapters.SourceAdapter
 import com.example.newsapp.databinding.LayoutFilterBottomSheetBinding
