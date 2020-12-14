@@ -10,6 +10,7 @@ import com.example.newsapp.databinding.ActivityNewsArticleBinding
 import com.example.newsapp.models.NewsResponse
 import com.example.newsapp.utils.NOT_AVAILABLE
 import com.example.newsapp.utils.convertDate
+import com.example.newsapp.utils.convertDateToStandard
 
 class NewsArticleActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNewsArticleBinding
@@ -41,7 +42,7 @@ class NewsArticleActivity : AppCompatActivity() {
                 binding.txtNewsContent.text = NOT_AVAILABLE
 
             binding.txtNewsSource.text = article.source.name
-            binding.txtNewsTime.text = convertDate(article.publishedAt!!)
+            binding.txtNewsTime.text = convertDateToStandard(article.publishedAt!!)
         }
     }
 }

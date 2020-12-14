@@ -47,3 +47,20 @@ fun convertDate(stringDate: String?): String? {
     }
     return formattedDate
 }
+
+fun convertDateToStandard(stringDate: String?): String? {
+    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
+    val simpleDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+    var formattedDate: String? = null
+    if (stringDate != null) {
+        try {
+            val date = format.parse(stringDate)
+            if (date != null) {
+                formattedDate = simpleDateFormat.format(date)
+            }
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+    }
+    return formattedDate
+}
