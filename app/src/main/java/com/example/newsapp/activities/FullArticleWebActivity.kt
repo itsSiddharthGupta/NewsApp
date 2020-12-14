@@ -1,13 +1,11 @@
 package com.example.newsapp.activities
 
 import android.graphics.Bitmap
+import android.net.http.SslError
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.newsapp.R
@@ -37,10 +35,17 @@ class FullArticleWebActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
             }
 
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                return true
+            override fun onReceivedSslError(
+                view: WebView?,
+                handler: SslErrorHandler?,
+                error: SslError?
+            ) {
+                if (handler != null){
+                    handler.proceed();
+                } else {
+                    super.onReceivedSslError(view, null, error);
+                }
             }
-
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
                 binding.progressBar.visibility = View.GONE
@@ -50,9 +55,8 @@ class FullArticleWebActivity : AppCompatActivity() {
             onBackPressed()
         }
         binding.webView.settings.javaScriptEnabled = false
-        binding.webView.settings.domStorageEnabled = true
-        binding.webView.settings.setAppCacheEnabled(true)
-        binding.webView.settings.loadsImagesAutomatically = true
+        binding.webView.settings.loadWithOverviewMode = true
+        binding.webView.settings.useWideViewPort = true
         binding.webView.loadUrl(baseUrl)
     }
 
