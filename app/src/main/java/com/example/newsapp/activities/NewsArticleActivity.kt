@@ -1,5 +1,6 @@
 package com.example.newsapp.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -20,6 +21,10 @@ class NewsArticleActivity : AppCompatActivity() {
         inflateViewsWithData(news)
         binding.articleBack.setOnClickListener {
             onBackPressed()
+        }
+        binding.txtReadMore.setOnClickListener {
+            if(news?.url != null)
+                startActivity(Intent(this@NewsArticleActivity, FullArticleWebActivity::class.java).putExtra("NEWS_URL", news.url))
         }
     }
 

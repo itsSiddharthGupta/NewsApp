@@ -40,8 +40,9 @@ class SearchNewsActivityViewModel(private var client: Retrofit) : ViewModel() {
                         } else {
                             isNewsError.value = true
                         }
+                    } else {
+                        isNewsError.value = true
                     }
-                    isNewsError.value = true
                     isLoading.value = false
                 }
 

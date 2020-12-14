@@ -56,9 +56,6 @@ class SearchNewsActivity : AppCompatActivity(), NewsAdapter.OnNewsItemClickListe
                 val currentItems = layoutManager.childCount
                 val totalItems = layoutManager.itemCount
                 val scrolledOutItems = layoutManager.findFirstVisibleItemPosition()
-                Log.e("Pagination", "Total Items : $totalItems")
-                Log.e("Pagination", "Current Items : $currentItems")
-                Log.e("Pagination", "scrolled Items : $scrolledOutItems")
                 if (!isLoading && !isLastPage) {
                     if (isScrolling
                         && (currentItems + scrolledOutItems >= totalItems)
